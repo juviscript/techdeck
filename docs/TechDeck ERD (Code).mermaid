@@ -1,0 +1,151 @@
+erDiagram
+    %% TechDeck Work Order Management System
+    %% Entity Relationship Diagram
+
+    users {
+        uuid id PK
+        varchar email UK "Unique, used for login"
+        varchar password_hash "BCrypt hashed"
+        varchar first_name
+        varchar last_name
+        enum role "ADMIN, TECHNICIAN"
+        boolean is_active "Soft delete flag"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    customers {
+        uuid id PK
+        varchar first_name
+        varchar last_name
+        varchar email
+        varchar phone
+        text notes "General customer notes"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    service_locations {
+        uuid id PK
+        uuid customer_id FK
+        varchar address_line1
+        varchar address_line2 "nullable"
+        varchar city
+        varchar state
+        varchar zip_code
+        text access_notes "Gate codes, directions, etc"
+        boolean is_primary "Default location for customer"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    service_types {
+        uuid id PK
+        varchar name "e.g., TV Mounting, Site Survey"
+        text description
+        integer base_duration_minutes "Default time estimate"
+        decimal base_rate "Default price"
+        boolean is_active "Can be deactivated"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    service_add_ons {
+        uuid id PK
+        uuid service_type_id FK
+        varchar name "e.g., Over Fireplace"
+        text description
+        integer additional_minutes "Extra time added"
+        decimal additional_rate "Extra cost added"
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    work_orders {
+        uuid id PK
+        uuid customer_id FK
+        uuid location_id FK
+        uuid technician_id FK "nullable - can be unassigned"
+        uuid parent_work_order_id FK "nullable - self reference"
+        enum origin_type "SITE_SURVEY, CONSULTATION, DIRECT"
+        enum status "SCHEDULED, IN_PROGRESS, WAITING_PARTS, NEEDS_FOLLOWUP, COMPLETED"
+        timestamp scheduled_date
+        integer estimated_duration_minutes "Calculated from services"
+        text description "Job details"
+        timestamp started_at "nullable"
+        timestamp completed_at "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    work_order_services {
+        uuid id PK
+        uuid work_order_id FK
+        uuid service_type_id FK
+        integer quantity "Default 1"
+        text notes "Service-specific notes"
+        timestamp created_at
+    }
+
+    work_order_service_add_ons {
+        uuid id PK
+        uuid work_order_service_id FK
+        uuid service_add_on_id FK
+        timestamp created_at
+    }
+
+    work_order_notes {
+        uuid id PK
+        uuid work_order_id FK
+        uuid user_id FK "Who wrote the note"
+        text content
+        boolean is_internal "Admin only vs visible to all"
+        timestamp created_at
+    }
+
+    time_entries {
+        uuid id PK
+        uuid work_order_id FK
+        uuid technician_id FK
+        enum entry_type "TRAVEL, ON_SITE"
+        timestamp start_time
+        timestamp end_time "nullable if still active"
+        integer duration_minutes "Calculated on stop"
+        text notes "Optional notes about time"
+        boolean is_synced "For offline sync tracking"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    refresh_tokens {
+        uuid id PK
+        uuid user_id FK
+        varchar token_hash "Hashed refresh token"
+        timestamp expires_at
+        boolean is_revoked
+        timestamp created_at
+    }
+
+    %% Relationships
+
+    customers ||--o{ service_locations : "has"
+    customers ||--o{ work_orders : "has"
+    
+    service_locations ||--o{ work_orders : "site for"
+    
+    users ||--o{ work_orders : "assigned to"
+    users ||--o{ time_entries : "logs"
+    users ||--o{ work_order_notes : "writes"
+    users ||--o{ refresh_tokens : "has"
+    
+    work_orders ||--o{ work_orders : "parent of"
+    work_orders ||--o{ work_order_services : "includes"
+    work_orders ||--o{ work_order_notes : "has"
+    work_orders ||--o{ time_entries : "tracked by"
+    
+    service_types ||--o{ service_add_ons : "has"
+    service_types ||--o{ work_order_services : "used in"
+    
+    work_order_services ||--o{ work_order_service_add_ons : "has"
+    service_add_ons ||--o{ work_order_service_add_ons : "applied to"
