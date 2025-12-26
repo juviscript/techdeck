@@ -1,6 +1,7 @@
 package dev.juviscript.techdeck.controllers;
 
 import dev.juviscript.techdeck.dto.request.CreateUserRequest;
+import dev.juviscript.techdeck.dto.request.UpdateEmailRequest;
 import dev.juviscript.techdeck.dto.request.UpdateUserRequest;
 import dev.juviscript.techdeck.dto.response.UserResponse;
 import dev.juviscript.techdeck.mappers.UserMapper;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +24,7 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * GET /api/v1/users
@@ -116,5 +119,27 @@ public class UserController {
     @GetMapping("/check-email")
     public ResponseEntity<Boolean> checkEmailAvailability(@RequestParam String email) {
         return ResponseEntity.ok(userService.isEmailAvailable(email));
+    }
+
+    /**
+     * PATCH /api/v1/users/{id}/email
+     * Update user's email address (requires password verification)
+     */
+    @PatchMapping("/{id}/email")
+    public ResponseEntity<UserResponse> updateEmail(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateEmailRequest request) {
+
+        try {
+            User updatedUser = userService.updateEmail(
+                    id,
+                    request.getNewEmail(),
+                    request.getCurrentPassword(),
+                    passwordEncoder
+            );
+            return ResponseEntity.ok(userMapper.toDTO(updatedUser));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

@@ -1,8 +1,9 @@
 package dev.juviscript.techdeck.services;
 
 import dev.juviscript.techdeck.models.User;
-import dev.juviscript.techdeck.repository.UserRepository;
+import dev.juviscript.techdeck.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,5 +88,34 @@ public class UserService {
     @Transactional(readOnly = true)
     public boolean isEmailAvailable(String email) {
         return !userRepository.existsByEmail(email);
+    }
+
+    /**
+     * Update user's email address
+     * Requires password verification for security
+     */
+    public User updateEmail(UUID id, String newEmail, String currentPassword, PasswordEncoder passwordEncoder) {
+        // Find the user
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+
+        // Verify current password
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+
+        // Check if new email is same as current
+        if (user.getEmail().equalsIgnoreCase(newEmail)) {
+            throw new IllegalArgumentException("New email must be different from current email");
+        }
+
+        // Check if new email is already in use
+        if (userRepository.existsByEmail(newEmail)) {
+            throw new IllegalArgumentException("Email already in use: " + newEmail);
+        }
+
+        // Update email
+        user.setEmail(newEmail);
+        return userRepository.save(user);
     }
 }

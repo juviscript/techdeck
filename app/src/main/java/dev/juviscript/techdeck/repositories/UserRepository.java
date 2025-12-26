@@ -1,4 +1,4 @@
-package dev.juviscript.techdeck.repository;
+package dev.juviscript.techdeck.repositories;
 
 import dev.juviscript.techdeck.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
