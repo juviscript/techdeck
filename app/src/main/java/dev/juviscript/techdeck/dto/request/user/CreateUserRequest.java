@@ -1,4 +1,4 @@
-package dev.juviscript.techdeck.dto.request;
+package dev.juviscript.techdeck.dto.request.user;
 
 import dev.juviscript.techdeck.models.Role;
 import jakarta.validation.constraints.Email;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterRequest {
+public class CreateUserRequest {
 
     @NotBlank(message = "First name is required")
     private String firstName;

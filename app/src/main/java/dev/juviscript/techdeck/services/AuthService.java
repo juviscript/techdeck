@@ -1,7 +1,7 @@
 package dev.juviscript.techdeck.services;
 
-import dev.juviscript.techdeck.dto.request.LoginRequest;
-import dev.juviscript.techdeck.dto.request.RegisterRequest;
+import dev.juviscript.techdeck.dto.request.auth.LoginRequest;
+import dev.juviscript.techdeck.dto.request.auth.RegisterRequest;
 import dev.juviscript.techdeck.dto.response.AuthResponse;
 import dev.juviscript.techdeck.dto.response.UserResponse;
 import dev.juviscript.techdeck.mappers.UserMapper;
@@ -9,6 +9,7 @@ import dev.juviscript.techdeck.models.User;
 import dev.juviscript.techdeck.repositories.UserRepository;
 import dev.juviscript.techdeck.security.JwtService;
 import dev.juviscript.techdeck.security.UserDetailsImpl;
+import dev.juviscript.techdeck.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,17 +33,20 @@ public class AuthService {
      * Register a new user
      */
     public AuthResponse register(RegisterRequest request) {
+        // Normalize email
+        String normalizedEmail = StringUtils.normalizeEmail(request.getEmail());
+
         // Check if email already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already in use: " + request.getEmail());
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw new IllegalArgumentException("Email already in use: " + normalizedEmail);
         }
 
-        // Create new user
+        // Create new user with normalized data
         User user = new User();
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
-        user.setPhoneNumber(request.getPhoneNumber());
+        user.setFirstName(StringUtils.capitalizeFirst(request.getFirstName()));
+        user.setLastName(StringUtils.capitalizeFirst(request.getLastName()));
+        user.setEmail(normalizedEmail);
+        user.setPhoneNumber(StringUtils.normalizePhone(request.getPhoneNumber()));
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
         user.setActive(true);
@@ -64,10 +68,13 @@ public class AuthService {
      * Authenticate user and return tokens
      */
     public AuthResponse login(LoginRequest request) {
+        // Normalize email for lookup
+        String normalizedEmail = StringUtils.normalizeEmail(request.getEmail());
+
         // Authenticate user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
+                        normalizedEmail,
                         request.getPassword()
                 )
         );

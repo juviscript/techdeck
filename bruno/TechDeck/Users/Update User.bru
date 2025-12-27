@@ -4,8 +4,23 @@ meta {
   seq: 4
 }
 
-put {
-  url: http://localhost:8080/api/v1/users/{id}
-  body: none
+patch {
+  url: http://localhost:8080/api/v1/users/9c9ac264-0c19-4f5e-b066-4a5f40c90fa8/email
+  body: json
   auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZmVycmlzQHRlY2h5ZWFoLmNvbSIsImlhdCI6MTc2NjcxNzQxMSwiZXhwIjoxNzY2NzE4MzExfQ.fUmZGb-EDHba0o-zHEWoT5oL-VXtWGStE2yIbkSk8hc
+}
+
+body:json {
+  {
+    "newEmail" : "aferrisn@techyeah.com",
+    "currentPassword" : "Password1!"
+  }
+}
+
+body:multipart-form {
+  email: "aferris@techyeah.com"
 }

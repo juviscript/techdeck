@@ -1,8 +1,8 @@
 package dev.juviscript.techdeck.controllers;
 
-import dev.juviscript.techdeck.dto.request.CreateUserRequest;
-import dev.juviscript.techdeck.dto.request.UpdateEmailRequest;
-import dev.juviscript.techdeck.dto.request.UpdateUserRequest;
+import dev.juviscript.techdeck.dto.request.user.CreateUserRequest;
+import dev.juviscript.techdeck.dto.request.user.UpdateEmailRequest;
+import dev.juviscript.techdeck.dto.request.user.UpdateUserRequest;
 import dev.juviscript.techdeck.dto.response.UserResponse;
 import dev.juviscript.techdeck.mappers.UserMapper;
 import dev.juviscript.techdeck.models.User;

@@ -2,6 +2,7 @@ package dev.juviscript.techdeck.security;
 
 import dev.juviscript.techdeck.models.User;
 import dev.juviscript.techdeck.repositories.UserRepository;
+import dev.juviscript.techdeck.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,8 +19,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        // Normalize email for case-insensitive lookup
+        String normalizedEmail = StringUtils.normalizeEmail(email);
+
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + normalizedEmail));
 
         return UserDetailsImpl.build(user);
     }

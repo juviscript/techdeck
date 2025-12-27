@@ -1,7 +1,7 @@
 package dev.juviscript.techdeck.controllers;
 
-import dev.juviscript.techdeck.dto.request.LoginRequest;
-import dev.juviscript.techdeck.dto.request.RegisterRequest;
+import dev.juviscript.techdeck.dto.request.auth.LoginRequest;
+import dev.juviscript.techdeck.dto.request.auth.RegisterRequest;
 import dev.juviscript.techdeck.dto.response.AuthResponse;
 import dev.juviscript.techdeck.services.AuthService;
 import jakarta.validation.Valid;

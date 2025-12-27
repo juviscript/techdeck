@@ -1,4 +1,4 @@
-package dev.juviscript.techdeck.dto.request;
+package dev.juviscript.techdeck.dto.request.user;
 
 import dev.juviscript.techdeck.models.Role;
 import lombok.AllArgsConstructor;
