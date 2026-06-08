@@ -44,6 +44,9 @@ public class WorkOrder {
     private List<WorkOrder> childWorkOrders = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
+    private OriginType originType = OriginType.DIRECT;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status = Status.SCHEDULED;
 
